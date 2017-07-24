@@ -19,7 +19,7 @@ class MyFigureCanvas(FigureCanvas):
         # We want the axes cleared every time plot() is called
         # self.axes.hold(False)
 
-        self.build(method)
+        # self.build(method)
 
         self.canvas = FigureCanvas.__init__(self, fig)
         self.setParent(parent)
@@ -37,8 +37,8 @@ class MyFigureCanvas(FigureCanvas):
             3: '24 months',
         }[x]
 
-    def build(self, method):
-        if method == "K-Means":
+
+    def rebuildKMeans(self):
             # Import Data
             datfile = r'TablData01.txt'
             data = np.loadtxt(datfile)
@@ -67,7 +67,6 @@ class MyFigureCanvas(FigureCanvas):
             pyplot.xlabel('Skin fibroblasts')
             pyplot.ylabel('Lungs fibroblasts')
             pyplot.title('K-Mean method for ' + MyFigureCanvas.period(column) + ' with k = ' + str(k))
-        else: pass
-
+            self.draw()
 
 
