@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QFileDialog
 
 from canvas import MyFigureCanvas
 from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
@@ -8,6 +8,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("Clustering")
         MainWindow.resize(630, 400)
+        MainWindow.setFixedSize(MainWindow.size())
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -74,8 +75,19 @@ class Ui_MainWindow(object):
         self.horizontalAxisLayout.addWidget(self.comboBoxYAxisLabel)
         self.horizontalAxisLayout.addWidget(self.comboBoxYAxis)
 
-
         self.verticalControlLayout.addLayout(self.horizontalAxisLayout)
+
+        self.horizontalFileLayout = QtWidgets.QHBoxLayout()
+        self.lineEditFile = QtWidgets.QLineEdit()
+        self.browseButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
+        self.browseButton.clicked.connect(lambda: self.selectFile())
+        self.horizontalFileLayout.addWidget(self.lineEditFile)
+        self.horizontalFileLayout.addWidget(self.browseButton)
+
+
+
+        self.verticalControlLayout.addLayout(self.horizontalFileLayout)
+
 
         self.pushBuildButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.pushBuildButton.setObjectName("pushBuildButton")
@@ -103,7 +115,11 @@ class Ui_MainWindow(object):
         # self.pushButton_2.setText(_translate("MainWindow", "PushButton"))
         # self.pushButton_3.setText(_translate("MainWindow", "PushButton"))
         self.pushBuildButton.setText(_translate("MainWindow", "Build"))
+        self.browseButton.setText(_translate("MainWindow", "..."))
 
     def buildNewGraphic(self):
         if self.comboBox.currentText() == "K-Means":
             self.canvas.rebuildKMeans()
+
+    def selectFile(self):
+        self.lineEditFile.setText(QFileDialog.getOpenFileName())
