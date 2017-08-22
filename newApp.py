@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QWidget, QFileDialog
 from canvas import MyFigureCanvas
 from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("Clustering")
@@ -23,16 +24,17 @@ class Ui_MainWindow(object):
 
         self.verticalPlotLayout = QtWidgets.QVBoxLayout()
         self.verticalPlotLayout.setObjectName("verticalLayout")
-
         self.drawing_widget = QWidget()
-        self.canvas = MyFigureCanvas(self.drawing_widget, width=4, height=3, dpi=100)
-        self.navi_toolbar = NavigationToolbar(self.canvas, self.centralwidget)  # createa navigation toolbar for our plot canvas
+        self.canvas = MyFigureCanvas(self.drawing_widget, width=4, height=3, dpi=90)
+        self.navi_toolbar = NavigationToolbar(self.canvas,self.centralwidget)  # createa navigation toolbar for our plot canvas
         self.verticalPlotLayout.addWidget(self.navi_toolbar)
         self.verticalPlotLayout.addWidget(self.drawing_widget)
+
         self.horizontalLayout.addLayout(self.verticalPlotLayout)
 
         self.verticalControlLayout = QtWidgets.QVBoxLayout()
         self.verticalControlLayout.setObjectName("verticalLayout")
+
 
         self.horizontalGraphTypeLayout = QtWidgets.QHBoxLayout()
         self.comboBoxTypeLabel = QtWidgets.QLabel("Type of graph :")
@@ -44,13 +46,21 @@ class Ui_MainWindow(object):
         self.verticalControlLayout.addLayout(self.horizontalGraphTypeLayout)
 
         self.horizontalMethodTypeLayout = QtWidgets.QHBoxLayout()
-        self.comboBoxLabel = QtWidgets.QLabel("Method :")
+        self.comboBoxMethodLabel = QtWidgets.QLabel("Method :")
         self.comboBox = QtWidgets.QComboBox()
         self.comboBox.addItem("Not selected")
         self.comboBox.addItem("K-Means")
-        self.horizontalMethodTypeLayout.addWidget(self.comboBoxLabel)
+        self.horizontalMethodTypeLayout.addWidget(self.comboBoxMethodLabel)
         self.horizontalMethodTypeLayout.addWidget(self.comboBox)
         self.verticalControlLayout.addLayout(self.horizontalMethodTypeLayout)
+
+        self.horizontalNumberOfClustersLayout = QtWidgets.QHBoxLayout()
+        self.lineEditNOCLabel = QtWidgets.QLabel("Number of clusters :")
+        self.lineEditNOC= QtWidgets.QLineEdit()
+        self.lineEditNOC.setText("4")
+        self.horizontalNumberOfClustersLayout.addWidget(self.lineEditNOCLabel)
+        self.horizontalNumberOfClustersLayout.addWidget(self.lineEditNOC)
+        self.verticalControlLayout.addLayout(self.horizontalNumberOfClustersLayout)
 
         self.checkBoxNormalize = QtWidgets.QCheckBox("Normalize")
         self.verticalControlLayout.addWidget(self.checkBoxNormalize)
@@ -84,10 +94,7 @@ class Ui_MainWindow(object):
         self.horizontalFileLayout.addWidget(self.lineEditFile)
         self.horizontalFileLayout.addWidget(self.browseButton)
 
-
-
         self.verticalControlLayout.addLayout(self.horizontalFileLayout)
-
 
         self.pushBuildButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.pushBuildButton.setObjectName("pushBuildButton")
@@ -119,7 +126,10 @@ class Ui_MainWindow(object):
 
     def buildNewGraphic(self):
         if self.comboBox.currentText() == "K-Means":
-            self.canvas.rebuildKMeans()
+            self.canvas.rebuildKMeans(self.lineEditNOC.text(), self.comboBoxXAxis.currentText(), self.comboBoxYAxis.currentText(), self.checkBoxNormalize.isChecked(), self.lineEditFile.text())
+
 
     def selectFile(self):
-        self.lineEditFile.setText(QFileDialog.getOpenFileName())
+        self.lineEditFile.setText(QFileDialog.getOpenFileName()[0])
+
+

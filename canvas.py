@@ -1,8 +1,4 @@
-import random
-
-from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QSizePolicy
-from matplotlib import pyplot
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib.figure import Figure
 from sklearn import cluster
@@ -12,15 +8,9 @@ import numpy as np
 class MyFigureCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
 
-    def __init__(self, parent=None, width=5, height=4, dpi=100, method="Not selected"):
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
-
-        # We want the axes cleared every time plot() is called
-        # self.axes.hold(False)
-
-        # self.build(method)
-
         self.canvas = FigureCanvas.__init__(self, fig)
         self.setParent(parent)
 
@@ -37,36 +27,33 @@ class MyFigureCanvas(FigureCanvas):
             3: '24 months',
         }[x]
 
+    def rebuildKMeans(self, NumberOfClusters, xAxisRaw, yAxisRaw, normalizationStatus, filePath):
+        # Import Data
+        datfile = filePath
+        data = np.loadtxt(datfile)
+        if normalizationStatus :
+            mData = np.max(data, axis=0)
+            data = data / mData;
+        # Using K-Means method
+        k = int(NumberOfClusters)  # Presumed number of clusters
+        xAxis = int(xAxisRaw) - 1
+        yAxis = int(yAxisRaw) - 1
+        kmeans = cluster.KMeans(n_clusters=k)
+        kmeans.fit(data)
+        labels = kmeans.labels_
+        centroids = kmeans.cluster_centers_
+        self.axes.cla()
+        for i in range(k):
+            # select only data observations with cluster label == i
+            ds = data[np.where(labels == i)]
+            # plot the data observations
+            self.axes.plot(ds[:, 0], ds[:, 1], 'o')
+            # plot the centroids
+            self.axes.plot(centroids[i, xAxis], centroids[i, yAxis], 'kx')
 
-    def rebuildKMeans(self):
-            # Import Data
-            datfile = r'TablData01.txt'
-            data = np.loadtxt(datfile)
 
-            # Using K-Means method
-
-            k = 4  # Presumed number of clusters
-            column = 3;  # Period of time/number of column (0 - 0.5months ; 1 - 1month ; 2 - 3months ; 3 - 24months)
-
-            kmeans = cluster.KMeans(n_clusters=k)
-            kmeans.fit(data)
-
-            labels = kmeans.labels_
-            centroids = kmeans.cluster_centers_
-
-            for i in range(k):
-                # select only data observations with cluster label == i
-                ds = data[np.where(labels == i)]
-                # plot the data observations
-                self.axes.plot(ds[:, 0], ds[:, 1], 'o')
-                # plot the centroids
-                lines = self.axes.plot(centroids[i, column], centroids[i, column + 4], 'kx')
-                # make the centroid x's bigger
-                pyplot.setp(lines, ms=15.0)
-                pyplot.setp(lines, mew=2.0)
-            pyplot.xlabel('Skin fibroblasts')
-            pyplot.ylabel('Lungs fibroblasts')
-            pyplot.title('K-Mean method for ' + MyFigureCanvas.period(column) + ' with k = ' + str(k))
-            self.draw()
-
+        # self.axes.set_xlabel(xAxisRaw + ' column')
+        # self.axes.set_ylabel(yAxisRaw + ' column')
+        # self.axes.set_title('K-Means method for ' + xAxisRaw + ' and ' + yAxisRaw + ' columns' + ' and  with ' + str(k) + ' clusters')
+        self.draw()
 
