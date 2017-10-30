@@ -1,8 +1,15 @@
+from itertools import cycle
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pylab as pl
 from PyQt5.QtWidgets import QSizePolicy
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib.figure import Figure
-from sklearn import cluster
-import numpy as np
+from scipy.cluster.hierarchy import linkage, dendrogram
+from  scipy.spatial.distance import pdist
+from sklearn.cluster import AffinityPropagation, DBSCAN, KMeans
+from sklearn.decomposition import PCA
 
 
 class MyFigureCanvas(FigureCanvas):
@@ -19,41 +26,142 @@ class MyFigureCanvas(FigureCanvas):
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    def period(x):
-        return {
-            0: '0.5 months',
-            1: '1 month',
-            2: '3 months',
-            3: '24 months',
-        }[x]
-
-    def rebuildKMeans(self, NumberOfClusters, xAxisRaw, yAxisRaw, normalizationStatus, filePath):
+    def KMeans(self, NumberOfClusters, filePath):
         # Import Data
         datfile = filePath
-        data = np.loadtxt(datfile)
-        if normalizationStatus :
-            mData = np.max(data, axis=0)
-            data = data / mData;
+        X = np.loadtxt(datfile)
+        # Normalization Data
+        mX = np.max(X, axis=0)
+        X = X / mX;
+
         # Using K-Means method
         k = int(NumberOfClusters)  # Presumed number of clusters
-        xAxis = int(xAxisRaw) - 1
-        yAxis = int(yAxisRaw) - 1
-        kmeans = cluster.KMeans(n_clusters=k)
-        kmeans.fit(data)
+        kmeans = KMeans(n_clusters=k)
+        kmeans.fit(X)
         labels = kmeans.labels_
         centroids = kmeans.cluster_centers_
+
+        # We will project the data into 2 main components
+        pca = PCA(n_components=2)
+        Xt = pca.fit_transform(X)
+
         self.axes.cla()
+
         for i in range(k):
             # select only data observations with cluster label == i
-            ds = data[np.where(labels == i)]
+            ds = Xt[np.where(labels == i)]
             # plot the data observations
             self.axes.plot(ds[:, 0], ds[:, 1], 'o')
             # plot the centroids
-            self.axes.plot(centroids[i, xAxis], centroids[i, yAxis], 'kx')
+            self.axes.plot(centroids[i, 0], centroids[i, 1], 'kx')
 
-
-        # self.axes.set_xlabel(xAxisRaw + ' column')
-        # self.axes.set_ylabel(yAxisRaw + ' column')
-        # self.axes.set_title('K-Means method for ' + xAxisRaw + ' and ' + yAxisRaw + ' columns' + ' and  with ' + str(k) + ' clusters')
         self.draw()
 
+    def DBSCAN(self, eps_row, min_samples_row, filePath):
+        # Import Data
+        datfile = filePath
+        X = np.loadtxt(datfile)
+        # Normalization Data
+        mX = np.max(X, axis=0)
+        X = X / mX;
+
+        # Compute DBSCAN
+        db = DBSCAN(float(eps_row), int(min_samples_row)).fit(X)
+        core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+        core_samples_mask[db.core_sample_indices_] = True
+        labels = db.labels_
+        # Number of clusters in labels, ignoring noise if present.
+        n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+
+        ##############################################################################
+        # We will project the data into 2 main components
+        pca = PCA(n_components=2)
+        Xt = pca.fit_transform(X)
+
+        # #############################################################################
+        # Plot result
+        self.axes.cla()
+        # Black removed and is used for noise instead.
+        unique_labels = set(labels)
+        colors = [plt.cm.Spectral(each)
+                  for each in np.linspace(0, 1, len(unique_labels))]
+        for k, col in zip(unique_labels, colors):
+            if k == -1:
+                # Black used for noise.
+                col = [0, 0, 0, 1]
+            class_member_mask = (labels == k)
+            xy = Xt[class_member_mask & core_samples_mask]
+            self.axes.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
+                           markeredgecolor='k', markersize=14)
+            xy = Xt[class_member_mask & ~core_samples_mask]
+            self.axes.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
+                           markeredgecolor='k', markersize=6)
+        # self.axes.title('Estimated number of clusters: %d' % n_clusters_)
+
+        self.draw()
+
+    def AffinityPropagation(self, filePath):
+
+        # Import Data
+        datfile = filePath
+        X = np.loadtxt(datfile)
+
+        ##############################################################################
+        # Compute similarities
+        X_norms = np.sum(X ** 2, axis=1)
+        S = - X_norms[:, np.newaxis] - X_norms[np.newaxis, :] + 2 * np.dot(X, X.T)
+        p = 10 * np.median(S)
+
+        ##############################################################################
+        # Compute Affinity Propagation
+        af = AffinityPropagation().fit(S, p)
+        cluster_centers_indices = af.cluster_centers_indices_
+        labels = af.labels_
+        n_clusters_ = len(cluster_centers_indices)
+
+        ##############################################################################
+        # We will project the data into 2 main components
+        pca = PCA(n_components=2)
+        Xt = pca.fit_transform(X)
+
+        ##############################################################################
+        # Plot result
+        self.axes.cla()
+        pl.close('all')
+        pl.figure(1)
+        pl.clf()
+
+        colors = cycle('bgrcmykbgrcmykbgrcmykbgrcmyk')
+        for k, col in zip(range(n_clusters_), colors):
+            class_members = labels == k
+            cluster_center = Xt[cluster_centers_indices[k]]
+            self.axes.plot(Xt[class_members, 0], Xt[class_members, 1], col + '.')
+            self.axes.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
+                           markeredgecolor='k', markersize=10)
+            for x in Xt[class_members]:
+                self.axes.plot([cluster_center[0], x[0]], [cluster_center[1], x[1]], col)
+
+        self.draw()
+        # pl.title('Estimated number of clusters: %d' % n_clusters_)
+
+    def Dendogram(self, filePath):  # Гавнокод!
+
+        # Import Data
+        datfile = filePath
+        X1 = np.loadtxt(datfile)
+
+        # Normalization Data
+        mx1 = np.max(X1, axis=0)
+        X1 = X1 / mx1
+
+        Y1 = pdist(X1, 'euclidean')
+        Z1 = linkage(Y1, method='single')
+
+        self.axes.cla()
+        plt.figure()
+
+        dn1 = dendrogram(Z1, orientation='right', distance_sort=True)
+        fig = plt.gcf()
+        fig.set_facecolor('w')
+        # plt.title('Дендрограмма по таблице 1')
+        self.draw()

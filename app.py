@@ -1,84 +1,171 @@
-# import matplotlib
-#
-# from canvas import MyFigureCanvas
-#
-# matplotlib.use("Qt5Agg")
-# from PyQt5 import QtCore, QtGui
-# from PyQt5.QtWidgets import *
-# from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
-#
-#
-# class ApplicationWindow(QMainWindow):
-#     def __init__(self):
-#         QMainWindow.__init__(self)
-#
-#
-#
-#         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-#
-#         self.setWindowTitle("Clustering")
-#
-#         self.file_menu = QMenu('&File', self)
-#         self.file_menu.addAction('&Quit', self.fileQuit,
-#                                  QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
-#         self.menuBar().addMenu(self.file_menu)
-#
-#         self.help_menu = QMenu('&Help', self)
-#         self.menuBar().addSeparator()
-#         self.menuBar().addMenu(self.help_menu)
-#
-#         self.help_menu.addAction('&About', self.about)
-#
-#         cb_label = QLabel("Method :")
-#         self.cb = QComboBox()
-#         self.cb.addItem("Not selected")
-#         self.cb.addItem("K-Means")
-#
-#         startButton = QPushButton("Start")
-#         startButton.clicked.connect(lambda : self.buildNewGraphic())
-#
-#
-#         self.drawing_widget = QWidget(self)
-#         self.canvas = MyFigureCanvas(self.drawing_widget, width=5, height=4, dpi=100)
-#         navi_toolbar = NavigationToolbar(self.canvas, self)  # createa navigation toolbar for our plot canvas
-#
-#
-#
-#
-#
-#         v_box = QVBoxLayout(self.drawing_widget)
-#
-#         v_box.addWidget(navi_toolbar)
-#         v_box.addWidget(self.canvas)
-#         v_box.addWidget(startButton)
-#         v_box.addWidget(cb_label)
-#         v_box.addWidget(self.cb)
-#
-#
-#         self.drawing_widget.setFocus()
-#         self.setCentralWidget(self.drawing_widget)
-#
-#         self.statusBar().showMessage("****", 2000)
-#
-#     def fileQuit(self):
-#         self.close()
-#
-#     def closeEvent(self, ce):
-#         self.fileQuit()
-#
-#     def buildNewGraphic(self):
-#         self.canvas = MyFigureCanvas(self.drawing_widget, width=5, height=4, dpi=100, method= self.cb.currentText())
-#         self.canvas.show()
-#
-#
-#
-#     def about(self):
-#         QMessageBox.about(self, "About",
-#                           """about about abput."""
-#                           )
-#
-#
-#
-#
-#
-#
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QWidget, QFileDialog, QListWidget
+from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
+
+from canvas import MyFigureCanvas
+
+
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+
+        MainWindow.setObjectName("Clustering")
+        MainWindow.resize(630, 400)
+        MainWindow.setFixedSize(MainWindow.size())
+
+        self.centralwidget = QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+
+        self.horizontalLayoutWidget = QWidget(self.centralwidget)
+        self.horizontalLayoutWidgetUI()
+
+        # Layout for graphs
+        self.verticalPlotLayout = QVBoxLayout()
+        self.verticalPlotLayoutUI()
+
+        # Main horizontal layout firh graph and controller
+        self.horizontalLayout.addLayout(self.verticalPlotLayout)
+
+        # Layout for controller (right side)
+        self.verticalControlLayout = QVBoxLayout()
+        self.verticalControlLayout.setObjectName("verticalLayout")
+
+        # Widget for stack with all methods and their controllers
+        self.controlWidget = QWidget()
+
+        # Widget(list) with all metgods' names
+        self.methodsList = QListWidget()
+        self.nameMethodsUI()
+
+        # Controllers for each of methods
+        self.stack1 = QWidget()
+        self.stack2 = QWidget()
+        self.stack3 = QWidget()
+        self.stack4 = QWidget()
+
+        self.stack1UI()
+        self.stack2UI()
+        self.stack3UI()
+        self.stack4UI()
+
+        # Stack
+        self.Stack = QStackedWidget(self.controlWidget)
+        self.StackUI()
+
+        self.controlWidget.setLayout(self.verticalControlLayout)
+
+        self.verticalControlLayout.addWidget(self.methodsList)
+        self.verticalControlLayout.addWidget(self.Stack)
+
+        # widget for way to  file
+        self.horizontalFileLayout = QHBoxLayout()
+        self.fileUI()
+
+        # widget for build button
+        self.pushBuildButton = QPushButton(self.horizontalLayoutWidget)
+        self.buildButtonUI()
+
+        self.horizontalLayout.addWidget(self.controlWidget)
+
+        MainWindow.setCentralWidget(self.centralwidget)
+
+        # self.menubar = QMenuBar(MainWindow)
+        # self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
+        # self.menubar.setObjectName("menubar")
+        # MainWindow.setMenuBar(self.menubar)
+        # self.statusbar = QStatusBar(MainWindow)
+        # self.statusbar.setObjectName("statusbar")
+        # MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "Clustering"))
+        self.pushBuildButton.setText(_translate("MainWindow", "Build"))
+
+    def horizontalLayoutWidgetUI(self):
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 600, 400))
+        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
+
+        self.horizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+
+    def verticalPlotLayoutUI(self):
+        self.verticalPlotLayout.setObjectName("verticalLayout")
+        self.drawing_widget = QWidget()
+        self.canvas = MyFigureCanvas(self.drawing_widget, width=4, height=3, dpi=90)
+        self.navi_toolbar = NavigationToolbar(self.canvas,
+                                              self.centralwidget)  # createa navigation toolbar for our plot canvas
+        self.verticalPlotLayout.addWidget(self.navi_toolbar)
+        self.verticalPlotLayout.addWidget(self.drawing_widget)
+
+    def buildNewGraphic(self):
+        if self.Stack.currentIndex() == 0:
+            self.canvas.Dendogram(self.lineEditFile.text())
+        if self.Stack.currentIndex() == 1:
+            self.canvas.KMeans(self.lineEditNOC.text(), self.lineEditFile.text())
+        if self.Stack.currentIndex() == 2:
+            self.canvas.DBSCAN(self.lineEditEps.text(), self.lineEditMinSamples.text(), self.lineEditFile.text())
+        if self.Stack.currentIndex() == 3:
+            self.canvas.AffinityPropagation(self.lineEditFile.text())
+
+    def nameMethodsUI(self):
+        self.methodsList.insertItem(0, 'Dendogram')
+        self.methodsList.insertItem(1, 'K-Means')
+        self.methodsList.insertItem(2, 'DBSCAN')
+        self.methodsList.insertItem(3, 'Affinity propagation')
+        self.methodsList.currentRowChanged.connect(self.display)
+
+    def stack1UI(self):
+        DendogramForm = QFormLayout()
+        # self.setTabText(0,"Contact Details")
+        self.stack1.setLayout(DendogramForm)
+
+    def stack2UI(self):
+
+        self.KMeansForm = QFormLayout()
+        self.lineEditNOC = QLineEdit()
+        self.KMeansForm.addRow("Number of clusters", self.lineEditNOC)
+        self.stack2.setLayout(self.KMeansForm)
+
+    def stack3UI(self):
+
+        DBSCANForm = QFormLayout()
+        self.lineEditEps = QLineEdit();
+        DBSCANForm.addRow("Eps", self.lineEditEps)
+        self.lineEditMinSamples = QLineEdit()
+        DBSCANForm.addRow("Min_saples", self.lineEditMinSamples)
+        self.stack3.setLayout(DBSCANForm)
+
+    def stack4UI(self):
+        AffinityPropagationForm = QFormLayout()
+        self.stack4.setLayout(AffinityPropagationForm)
+
+    def display(self, i):
+        self.Stack.setCurrentIndex(i)
+
+    def StackUI(self):
+        self.Stack.addWidget(self.stack1)
+        self.Stack.addWidget(self.stack2)
+        self.Stack.addWidget(self.stack3)
+        self.Stack.addWidget(self.stack4)
+
+    def fileUI(self):
+        self.horizontalFileLayout = QHBoxLayout()
+        self.lineEditFile = QLineEdit()
+        self.browseButton = QPushButton(self.horizontalLayoutWidget)
+        self.browseButton.clicked.connect(lambda: self.selectFile())
+        self.horizontalFileLayout.addWidget(self.lineEditFile)
+        self.horizontalFileLayout.addWidget(self.browseButton)
+        self.verticalControlLayout.addLayout(self.horizontalFileLayout)
+
+    def selectFile(self):
+        self.lineEditFile.setText(QFileDialog.getOpenFileName()[0])
+
+    def buildButtonUI(self):
+        self.pushBuildButton.setObjectName("pushBuildButton")
+        self.pushBuildButton.clicked.connect(lambda: self.buildNewGraphic())
+        self.verticalControlLayout.addWidget(self.pushBuildButton)
