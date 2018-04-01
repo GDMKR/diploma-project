@@ -143,25 +143,3 @@ class MyFigureCanvas(FigureCanvas):
 
         self.draw()
         # pl.title('Estimated number of clusters: %d' % n_clusters_)
-
-    def Dendogram(self, filePath):  # Гавнокод!
-
-        # Import Data
-        datfile = filePath
-        X1 = np.loadtxt(datfile)
-
-        # Normalization Data
-        mx1 = np.max(X1, axis=0)
-        X1 = X1 / mx1
-
-        Y1 = pdist(X1, 'euclidean')
-        Z1 = linkage(Y1, method='single')
-
-        self.axes.cla()
-        plt.figure()
-
-        dn1 = dendrogram(Z1, orientation='right', distance_sort=True)
-        fig = plt.gcf()
-        fig.set_facecolor('w')
-        # plt.title('Дендрограмма по таблице 1')
-        self.draw()

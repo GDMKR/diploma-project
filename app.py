@@ -41,12 +41,10 @@ class Ui_MainWindow(object):
         self.stack1 = QWidget()
         self.stack2 = QWidget()
         self.stack3 = QWidget()
-        self.stack4 = QWidget()
 
         self.stack1UI()
         self.stack2UI()
         self.stack3UI()
-        self.stack4UI()
 
         # Stack
         self.Stack = QStackedWidget(self.controlWidget)
@@ -104,45 +102,37 @@ class Ui_MainWindow(object):
 
     def buildNewGraphic(self):
         if self.Stack.currentIndex() == 0:
-            self.canvas.Dendogram(self.lineEditFile.text())
-        if self.Stack.currentIndex() == 1:
             self.canvas.KMeans(self.lineEditNOC.text(), self.lineEditFile.text())
-        if self.Stack.currentIndex() == 2:
+        if self.Stack.currentIndex() == 1:
             self.canvas.DBSCAN(self.lineEditEps.text(), self.lineEditMinSamples.text(), self.lineEditFile.text())
-        if self.Stack.currentIndex() == 3:
+        if self.Stack.currentIndex() == 2:
             self.canvas.AffinityPropagation(self.lineEditFile.text())
 
     def nameMethodsUI(self):
-        self.methodsList.insertItem(0, 'Dendogram')
-        self.methodsList.insertItem(1, 'K-Means')
-        self.methodsList.insertItem(2, 'DBSCAN')
-        self.methodsList.insertItem(3, 'Affinity propagation')
+        self.methodsList.insertItem(0, 'K-Means')
+        self.methodsList.insertItem(1, 'DBSCAN')
+        self.methodsList.insertItem(2, 'Affinity propagation')
         self.methodsList.currentRowChanged.connect(self.display)
 
+
     def stack1UI(self):
-        DendogramForm = QFormLayout()
-        # self.setTabText(0,"Contact Details")
-        self.stack1.setLayout(DendogramForm)
-
-    def stack2UI(self):
-
         self.KMeansForm = QFormLayout()
         self.lineEditNOC = QLineEdit()
         self.KMeansForm.addRow("Number of clusters", self.lineEditNOC)
-        self.stack2.setLayout(self.KMeansForm)
+        self.stack1.setLayout(self.KMeansForm)
 
-    def stack3UI(self):
+    def stack2UI(self):
 
         DBSCANForm = QFormLayout()
         self.lineEditEps = QLineEdit();
         DBSCANForm.addRow("Eps", self.lineEditEps)
         self.lineEditMinSamples = QLineEdit()
         DBSCANForm.addRow("Min_saples", self.lineEditMinSamples)
-        self.stack3.setLayout(DBSCANForm)
+        self.stack2.setLayout(DBSCANForm)
 
-    def stack4UI(self):
+    def stack3UI(self):
         AffinityPropagationForm = QFormLayout()
-        self.stack4.setLayout(AffinityPropagationForm)
+        self.stack3.setLayout(AffinityPropagationForm)
 
     def display(self, i):
         self.Stack.setCurrentIndex(i)
@@ -151,7 +141,6 @@ class Ui_MainWindow(object):
         self.Stack.addWidget(self.stack1)
         self.Stack.addWidget(self.stack2)
         self.Stack.addWidget(self.stack3)
-        self.Stack.addWidget(self.stack4)
 
     def fileUI(self):
         self.horizontalFileLayout = QHBoxLayout()
