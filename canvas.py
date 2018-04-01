@@ -2,12 +2,11 @@ from itertools import cycle
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import pylab as pl
 from PyQt5.QtWidgets import QSizePolicy
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib.figure import Figure
-from scipy.cluster.hierarchy import linkage, dendrogram
-from  scipy.spatial.distance import pdist
 from sklearn.cluster import AffinityPropagation, DBSCAN, KMeans
 from sklearn.decomposition import PCA
 
@@ -29,8 +28,13 @@ class MyFigureCanvas(FigureCanvas):
     def KMeans(self, NumberOfClusters, filePath):
         # Import Data
         datfile = filePath
-        X = np.loadtxt(datfile)
+        df = pd.read_csv(filePath, sep='\t', header=None)
+        X = np.array(df)
         # Normalization Data
+        labels = X[:, 0];
+        X = X[::, 1:X.size];
+        print(X)
+        print(labels)
         mX = np.max(X, axis=0)
         X = X / mX;
 
@@ -54,7 +58,6 @@ class MyFigureCanvas(FigureCanvas):
             self.axes.plot(ds[:, 0], ds[:, 1], 'o')
             # plot the centroids
             self.axes.plot(centroids[i, 0], centroids[i, 1], 'kx')
-
         self.draw()
 
     def DBSCAN(self, eps_row, min_samples_row, filePath):
@@ -110,7 +113,6 @@ class MyFigureCanvas(FigureCanvas):
         # Compute similarities
         X_norms = np.sum(X ** 2, axis=1)
         S = - X_norms[:, np.newaxis] - X_norms[np.newaxis, :] + 2 * np.dot(X, X.T)
-
 
         ##############################################################################
         # Compute Affinity Propagation
