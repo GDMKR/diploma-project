@@ -110,11 +110,11 @@ class MyFigureCanvas(FigureCanvas):
         # Compute similarities
         X_norms = np.sum(X ** 2, axis=1)
         S = - X_norms[:, np.newaxis] - X_norms[np.newaxis, :] + 2 * np.dot(X, X.T)
-        p = 10 * np.median(S)
+
 
         ##############################################################################
         # Compute Affinity Propagation
-        af = AffinityPropagation().fit(S, p)
+        af = AffinityPropagation().fit(S)
         cluster_centers_indices = af.cluster_centers_indices_
         labels = af.labels_
         n_clusters_ = len(cluster_centers_indices)

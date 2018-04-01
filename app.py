@@ -10,7 +10,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
 
         MainWindow.setObjectName("Clustering")
-        MainWindow.resize(630, 400)
+        MainWindow.resize(1000, 650)
         MainWindow.setFixedSize(MainWindow.size())
 
         self.centralwidget = QWidget(MainWindow)
@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
         self.verticalPlotLayoutUI()
 
         # Main horizontal layout firh graph and controller
-        self.horizontalLayout.addLayout(self.verticalPlotLayout)
+        self.horizontalLayout.addLayout(self.verticalPlotLayout,4)
 
         # Layout for controller (right side)
         self.verticalControlLayout = QVBoxLayout()
@@ -65,7 +65,7 @@ class Ui_MainWindow(object):
         self.pushBuildButton = QPushButton(self.horizontalLayoutWidget)
         self.buildButtonUI()
 
-        self.horizontalLayout.addWidget(self.controlWidget)
+        self.horizontalLayout.addWidget(self.controlWidget, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -86,7 +86,7 @@ class Ui_MainWindow(object):
         self.pushBuildButton.setText(_translate("MainWindow", "Build"))
 
     def horizontalLayoutWidgetUI(self):
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 600, 400))
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 10, 980, 600))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
 
         self.horizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
@@ -96,7 +96,7 @@ class Ui_MainWindow(object):
     def verticalPlotLayoutUI(self):
         self.verticalPlotLayout.setObjectName("verticalLayout")
         self.drawing_widget = QWidget()
-        self.canvas = MyFigureCanvas(self.drawing_widget, width=4, height=3, dpi=90)
+        self.canvas = MyFigureCanvas(self.drawing_widget, width=4, height=3, dpi=180)
         self.navi_toolbar = NavigationToolbar(self.canvas,
                                               self.centralwidget)  # createa navigation toolbar for our plot canvas
         self.verticalPlotLayout.addWidget(self.navi_toolbar)
