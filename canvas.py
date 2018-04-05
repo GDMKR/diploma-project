@@ -31,10 +31,9 @@ class MyFigureCanvas(FigureCanvas):
         df = pd.read_csv(filePath, sep='\t', header=None)
         X = np.array(df)
         # Normalization Data
-        labels = X[:, 0];
+        l = X[:, 0];
         X = X[::, 1:X.size];
         print(X)
-        print(labels)
         mX = np.max(X, axis=0)
         X = X / mX;
 
@@ -58,6 +57,9 @@ class MyFigureCanvas(FigureCanvas):
             self.axes.plot(ds[:, 0], ds[:, 1], 'o')
             # plot the centroids
             self.axes.plot(centroids[i, 0], centroids[i, 1], 'kx')
+
+        for i in range(0, l.size):
+            self.axes.annotate(l[i], xy=(Xt[i, 0], Xt[i, 1]))
         self.draw()
 
     def DBSCAN(self, eps_row, min_samples_row, filePath):
