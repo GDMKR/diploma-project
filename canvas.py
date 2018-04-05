@@ -25,7 +25,7 @@ class MyFigureCanvas(FigureCanvas):
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    def KMeans(self, NumberOfClusters, filePath):
+    def KMeans(self, NumberOfClusters, filePath, showLabels):
         # Import Data
         datfile = filePath
         df = pd.read_csv(filePath, sep='\t', header=None)
@@ -33,7 +33,6 @@ class MyFigureCanvas(FigureCanvas):
         # Normalization Data
         l = X[:, 0];
         X = X[::, 1:X.size];
-        print(X)
         mX = np.max(X, axis=0)
         X = X / mX;
 
@@ -58,14 +57,19 @@ class MyFigureCanvas(FigureCanvas):
             # plot the centroids
             self.axes.plot(centroids[i, 0], centroids[i, 1], 'kx')
 
-        for i in range(0, l.size):
-            self.axes.annotate(l[i], xy=(Xt[i, 0], Xt[i, 1]))
+        if (showLabels):
+            for i in range(0, l.size):
+                self.axes.annotate(l[i], xy=(Xt[i, 0], Xt[i, 1]), size=3)
         self.draw()
 
-    def DBSCAN(self, eps_row, min_samples_row, filePath):
+    def DBSCAN(self, eps_row, min_samples_row, filePath, showLabels):
         # Import Data
         datfile = filePath
-        X = np.loadtxt(datfile)
+        df = pd.read_csv(filePath, sep='\t', header=None)
+        X = np.array(df)
+        # Normalization Data
+        l = X[:, 0];
+        X = X[::, 1:X.size];
         # Normalization Data
         mX = np.max(X, axis=0)
         X = X / mX;
@@ -103,13 +107,20 @@ class MyFigureCanvas(FigureCanvas):
                            markeredgecolor='k', markersize=6)
         # self.axes.title('Estimated number of clusters: %d' % n_clusters_)
 
+        if (showLabels):
+            for i in range(0, l.size):
+                self.axes.annotate(l[i], xy=(Xt[i, 0], Xt[i, 1]), size=3)
         self.draw()
 
-    def AffinityPropagation(self, filePath):
+    def AffinityPropagation(self, filePath, showLabels):
 
         # Import Data
         datfile = filePath
-        X = np.loadtxt(datfile)
+        df = pd.read_csv(filePath, sep='\t', header=None)
+        X = np.array(df)
+        # Normalization Data
+        l = X[:, 0];
+        X = X[::, 1:X.size];
 
         ##############################################################################
         # Compute similarities
@@ -145,5 +156,8 @@ class MyFigureCanvas(FigureCanvas):
             for x in Xt[class_members]:
                 self.axes.plot([cluster_center[0], x[0]], [cluster_center[1], x[1]], col)
 
+        if (showLabels):
+            for i in range(0, l.size):
+                self.axes.annotate(l[i], xy=(Xt[i, 0], Xt[i, 1]), size=3)
         self.draw()
         # pl.title('Estimated number of clusters: %d' % n_clusters_)

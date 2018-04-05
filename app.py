@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
         self.verticalPlotLayoutUI()
 
         # Main horizontal layout firh graph and controller
-        self.horizontalLayout.addLayout(self.verticalPlotLayout,4)
+        self.horizontalLayout.addLayout(self.verticalPlotLayout, 4)
 
         # Layout for controller (right side)
         self.verticalControlLayout = QVBoxLayout()
@@ -54,6 +54,9 @@ class Ui_MainWindow(object):
 
         self.verticalControlLayout.addWidget(self.methodsList)
         self.verticalControlLayout.addWidget(self.Stack)
+
+        self.labelCheckBox = QCheckBox("Show labels");
+        self.verticalControlLayout.addWidget(self.labelCheckBox)
 
         # widget for way to  file
         self.horizontalFileLayout = QHBoxLayout()
@@ -101,19 +104,20 @@ class Ui_MainWindow(object):
         self.verticalPlotLayout.addWidget(self.drawing_widget)
 
     def buildNewGraphic(self):
+        showLabeles = self.labelCheckBox.isChecked();
         if self.Stack.currentIndex() == 0:
-            self.canvas.KMeans(self.lineEditNOC.text(), self.lineEditFile.text())
+            self.canvas.KMeans(self.lineEditNOC.text(), self.lineEditFile.text(), showLabeles)
         if self.Stack.currentIndex() == 1:
-            self.canvas.DBSCAN(self.lineEditEps.text(), self.lineEditMinSamples.text(), self.lineEditFile.text())
+            self.canvas.DBSCAN(self.lineEditEps.text(), self.lineEditMinSamples.text(), self.lineEditFile.text(),
+                               showLabeles)
         if self.Stack.currentIndex() == 2:
-            self.canvas.AffinityPropagation(self.lineEditFile.text())
+            self.canvas.AffinityPropagation(self.lineEditFile.text(), showLabeles)
 
     def nameMethodsUI(self):
         self.methodsList.insertItem(0, 'K-Means')
         self.methodsList.insertItem(1, 'DBSCAN')
         self.methodsList.insertItem(2, 'Affinity propagation')
         self.methodsList.currentRowChanged.connect(self.display)
-
 
     def stack1UI(self):
         self.KMeansForm = QFormLayout()
